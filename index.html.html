@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<title>Lorna's planner</title>
+<style>
+:root {
+  --paper: #FAF9F5;
+  --paper-weekend: #EFEEE7;
+  --paper-editable: #FDFCF7;
+  --paper-today: #E9EEF3;
+  --ink: #22201D;
+  --ink-muted: #6E6862;
+  --ink-faint: #9B9488;
+  --rule: #E4DFD3;
+  --rule-strong: #B8B0A0;
+  --accent: #294564;
+  --accent-hover: #1B3049;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-serif: "Palatino Linotype", Palatino, "Book Antiqua", "URW Palladio L", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+
+button {
+  font-family: inherit;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.12s, border-color 0.12s;
+}
+button:hover { background: #F3EFE4; border-color: var(--ink-muted); }
+button.primary {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+input[type="text"] {
+  font-family: inherit;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  padding: 2px 0;
+  width: 100%;
+  outline: none;
+}
+input[type="text"]:focus {
+  background: #FFF;
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ======================== PC VIEW ======================== */
+
+#pc-view { display: block; }
+#phone-view { display: none; }
+
+.pc-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 32px 60px;
+}
+
+.pc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink);
+  line-height: 1.35;
+  max-width: 540px;
+}
+.quote .attribution {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-style: normal;
+  margin-top: 4px;
+}
+
+.pc-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.range-label {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.arrow-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.planner-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.planner-table th, .planner-table td {
+  border: 1px solid var(--rule);
+  padding: 8px 10px;
+  vertical-align: top;
+  text-align: left;
+}
+.planner-table th {
+  background: var(--paper);
+  color: var(--ink-muted);
+  font-weight: 500;
+  font-size: 12px;
+  padding: 10px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.planner-table .col-date {
+  width: 78px;
+  color: var(--ink-muted);
+  font-size: 12px;
+  padding-top: 10px;
+}
+.planner-table .col-date .dow {
+  display: block;
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 13px;
+  margin-bottom: 1px;
+}
+.planner-table tr.weekend td { background: var(--paper-weekend); }
+.planner-table tr.today .col-date { color: var(--accent); }
+.planner-table tr.today .col-date .dow { color: var(--accent); font-weight: 500; }
+.planner-table tr.today td:first-child {
+  border-left: 3px solid var(--accent);
+  padding-left: 8px;
+}
+
+.cell-cal { min-height: 42px; }
+.cell-cal .subtext {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+.cell-cal .empty {
+  color: var(--ink-faint);
+}
+.cell-manual {
+  background: var(--paper-editable);
+  min-height: 42px;
+  padding: 6px 10px;
+}
+tr.weekend .cell-manual { background: #F5F1E4; }
+
+.planner-table td.cell-manual input {
+  min-height: 30px;
+}
+
+.pc-footnote {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.pc-footnote .swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: var(--paper-editable);
+  border: 1px solid var(--rule-strong);
+  vertical-align: -1px;
+  margin-right: 5px;
+}
+
+/* ======================== PHONE VIEW ======================== */
+
+@media (max-width: 700px) {
+  #pc-view { display: none; }
+  #phone-view { display: flex; flex-direction: column; min-height: 100vh; }
+  body { font-size: 15px; }
+}
+
+.phone-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.phone-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.phone-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.phone-day-nav .day-label {
+  font-size: 17px;
+  font-weight: 500;
+}
+.phone-day-nav .day-label.today {
+  color: var(--accent);
+}
+.phone-day-nav button.arrow-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 20px;
+  color: var(--ink-muted);
+}
+.phone-day-nav button.arrow-btn:hover { background: transparent; color: var(--ink); }
+
+.phone-day-content {
+  padding: 20px;
+  flex: 1;
+  padding-bottom: 90px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+.section-label {
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+.section-content {
+  font-size: 15px;
+}
+.section-content .subtext {
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+.section-content .empty {
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+.section-manual input {
+  font-size: 15px;
+  min-height: 26px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.section-manual input:focus {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+.meal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.meal-row:last-child { border-bottom: none; }
+.meal-row .meal-label {
+  width: 70px;
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+.meal-row input { flex: 1; }
+
+/* Fortnight tab (phone) */
+.fortnight-list {
+  padding: 8px 0;
+}
+.fortnight-day {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+.fortnight-day:hover { background: var(--paper-editable); }
+.fortnight-day.today { border-left: 3px solid var(--accent); padding-left: 17px; }
+.fortnight-day.weekend { background: var(--paper-weekend); }
+.fortnight-day .fd-date {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+.fortnight-day.today .fd-date { color: var(--accent); }
+.fortnight-day .fd-summary {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.fortnight-day .fd-summary.empty { color: var(--ink-faint); }
+
+/* Meals tab (phone) */
+.meals-tab {
+  padding: 20px;
+}
+.meals-tab h2 {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+.meals-tab .meals-hint {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+}
+.meal-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0 6px 6px 0;
+  background: var(--paper-editable);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  font-size: 13px;
+}
+.meals-empty {
+  color: var(--ink-faint);
+  font-style: italic;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* Bottom tab bar */
+.phone-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.phone-tabs button {
+  flex: 1;
+  padding: 12px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.phone-tabs button.active { color: var(--accent); }
+.phone-tabs button:hover { background: transparent; color: var(--ink); }
+.phone-tabs button.active:hover { color: var(--accent); }
+.phone-tabs .tab-icon {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 3px;
+  line-height: 1;
+}
+
+/* ======================== PRINT ======================== */
+
+@media print {
+  @page { size: A4 landscape; margin: 12mm; }
+  body { background: white; font-size: 10px; }
+  #phone-view, .pc-controls, .pc-footnote { display: none !important; }
+  #pc-view { display: block !important; }
+  .pc-container { padding: 0; max-width: 100%; }
+  .pc-header { margin-bottom: 12px; padding-bottom: 8px; }
+  .quote { font-size: 12px; }
+  .planner-table { font-size: 9px; }
+  .planner-table th, .planner-table td { padding: 4px 5px; }
+  .planner-table .col-date { width: 60px; }
+  .cell-manual, .planner-table tr.weekend td { background: white !important; }
+  .cell-manual { border: 1px solid #ccc; }
+  input[type="text"] { color: black; }
+}
+
+/* Stage banner - Stage A only */
+.stage-banner {
+  background: #FDF2D8;
+  border-bottom: 1px solid #E6D69E;
+  padding: 8px 20px;
+  font-size: 12px;
+  color: #6E5810;
+  text-align: center;
+}
+@media print { .stage-banner { display: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="stage-banner">Stage A — layout preview with dummy calendar data. Manual entries save to this browser only.</div>
+
+<!-- ======================== PC VIEW ======================== -->
+<div id="pc-view">
+  <div class="pc-container">
+
+    <div class="pc-header">
+      <div class="quote">
+        Plans are of little importance, but planning is essential.
+        <span class="attribution">— Winston Churchill</span>
+      </div>
+      <div class="pc-controls">
+        <span class="range-label" id="range-label">—</span>
+        <button class="arrow-btn" onclick="navFortnight(-1)" title="Previous fortnight">‹</button>
+        <button class="arrow-btn" onclick="navFortnight(1)" title="Next fortnight">›</button>
+        <button onclick="goToday()">Today</button>
+        <button onclick="window.print()">Print</button>
+      </div>
+    </div>
+
+    <table class="planner-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Working at</th>
+          <th>Activity</th>
+          <th>Events</th>
+          <th>Task</th>
+          <th>Breakfast</th>
+          <th>Lunch</th>
+          <th>Snack</th>
+          <th>Dinner</th>
+        </tr>
+      </thead>
+      <tbody id="planner-body"></tbody>
+    </table>
+
+    <div class="pc-footnote">
+      <div>Left three columns — from calendars (dummy data in Stage A)</div>
+      <div><span class="swatch"></span>Right five columns — click to type</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PHONE VIEW ======================== -->
+<div id="phone-view">
+
+  <div class="phone-header">
+    <div class="phone-quote">
+      Plans are of little importance, but planning is essential.
+    </div>
+  </div>
+
+  <!-- Today tab -->
+  <div id="phone-today" class="phone-tab-content">
+    <div class="phone-day-nav">
+      <button class="arrow-btn" onclick="navPhoneDay(-1)" title="Previous day">‹</button>
+      <div class="day-label" id="phone-day-label">—</div>
+      <button class="arrow-btn" onclick="navPhoneDay(1)" title="Next day">›</button>
+    </div>
+    <div class="phone-day-content" id="phone-day-content"></div>
+  </div>
+
+  <!-- Fortnight tab -->
+  <div id="phone-fortnight" class="phone-tab-content" style="display:none">
+    <div class="fortnight-list" id="fortnight-list"></div>
+  </div>
+
+  <!-- Meals tab -->
+  <div id="phone-meals" class="phone-tab-content" style="display:none">
+    <div class="meals-tab">
+      <h2>Recent meals</h2>
+      <div class="meals-hint">Meals you've typed before, ready to reuse.</div>
+      <div id="meals-list"></div>
+    </div>
+  </div>
+
+  <nav class="phone-tabs">
+    <button id="tab-today" class="active" onclick="setTab('today')">
+      <span class="tab-icon">◐</span>Today
+    </button>
+    <button id="tab-fortnight" onclick="setTab('fortnight')">
+      <span class="tab-icon">▦</span>Fortnight
+    </button>
+    <button id="tab-meals" onclick="setTab('meals')">
+      <span class="tab-icon">≡</span>Meals
+    </button>
+  </nav>
+
+</div>
+
+<datalist id="meal-suggestions"></datalist>
+
+<script>
+/* ============ Data model ============ */
+
+const state = {
+  viewStart: null,     // Monday of the fortnight currently shown on PC
+  phoneDayOffset: 0,   // offset from today
+  activeTab: 'today',
+  manualEntries: {},   // { '2026-09-13': { task, breakfast, lunch, snack, dinner } }
+  recentMeals: [],
+};
+
+/* Seed dummy calendar events — anchored to the current week so first-open
+   always looks populated. Real feeds replace this in Stage B. */
+function seedCalendar() {
+  const monday = getMonday(new Date());
+  const d = (n) => formatDate(addDays(monday, n));
+  return [
+    { date: d(0),  col: 'working',  text: 'Second Half Centre', sub: '12:00 fortnightly checkin' },
+    { date: d(1),  col: 'working',  text: 'WFH', sub: '' },
+    { date: d(1),  col: 'activity', text: '13:00 Yoga', sub: '' },
+    { date: d(2),  col: 'working',  text: 'New Horizons', sub: '11:00 Lucy Peett' },
+    { date: d(2),  col: 'events',   text: 'Choir of Man', sub: '19:00' },
+    { date: d(3),  col: 'working',  text: 'St Margarets', sub: '' },
+    { date: d(4),  col: 'working',  text: 'WFH', sub: '11:40 Greener Living meeting' },
+    { date: d(5),  col: 'events',   text: 'Long road festival', sub: '' },
+    { date: d(6),  col: 'events',   text: 'Long road festival', sub: '' },
+    { date: d(7),  col: 'working',  text: 'Second Half Centre', sub: 'Update annual plan' },
+    { date: d(7),  col: 'working',  text: '', sub: '14:00 Open Age update' },
+    { date: d(8),  col: 'working',  text: 'New Horizons', sub: '11:30 Fundraiser interview' },
+    { date: d(9),  col: 'working',  text: 'WFH', sub: '13:15 Private appointment' },
+    { date: d(9),  col: 'events',   text: '', sub: '13:15 Hair cut' },
+    { date: d(10), col: 'working',  text: 'The Avenues Youth Project', sub: '' },
+    { date: d(10), col: 'activity', text: '18:00 Rowing', sub: '' },
+  ];
+}
+
+const calendarEvents = seedCalendar();
+
+/* Seed some recent meals so the dropdown isn't empty on first open */
+const seedMeals = [
+  'Porridge & berries', 'Toast & jam', 'Greek yoghurt & granola',
+  'Scrambled eggs', 'Smoothie', 'Overnight oats',
+  'Chicken salad', 'Sandwich', 'Soup & bread', 'Leftovers', 'Wrap',
+  'Chicken curry', 'Salmon & greens', 'Stir fry', 'Roast chicken',
+  'Fish pie', 'Pasta bake', 'Fajitas', 'Sunday roast',
+];
+
+/* ============ Date utilities ============ */
+
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function getMonday(d) {
+  const r = new Date(d);
+  r.setHours(0, 0, 0, 0);
+  const day = r.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  return addDays(r, diff);
+}
+function formatDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + dd;
+}
+function displayShort(d) {
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function displayLong(d) {
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+function displayRange(start) {
+  const end = addDays(start, 13);
+  const s = start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  const e = end.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return s + ' — ' + e;
+}
+function isSameDay(a, b) { return formatDate(a) === formatDate(b); }
+function isWeekend(d) { const day = d.getDay(); return day === 0 || day === 6; }
+
+/* ============ Persistence ============ */
+
+const STORAGE_KEY = 'lornas-planner-v1';
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      manualEntries: state.manualEntries,
+      recentMeals: state.recentMeals,
+    }));
+  } catch (e) { /* quota or private mode — silent for Stage A */ }
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      state.manualEntries = data.manualEntries || {};
+      state.recentMeals = data.recentMeals || [];
+    }
+  } catch (e) { /* corrupt storage — reset silently */ }
+  if (state.recentMeals.length === 0) {
+    state.recentMeals = seedMeals.slice();
+  }
+}
+
+/* ============ Calendar helpers ============ */
+
+function eventsFor(dateKey, col) {
+  return calendarEvents.filter(e => e.date === dateKey && e.col === col);
+}
+
+function manualFor(dateKey) {
+  return state.manualEntries[dateKey] || {};
+}
+
+function setManual(dateKey, field, value) {
+  if (!state.manualEntries[dateKey]) state.manualEntries[dateKey] = {};
+  if (value === '') delete state.manualEntries[dateKey][field];
+  else state.manualEntries[dateKey][field] = value;
+  if (Object.keys(state.manualEntries[dateKey]).length === 0) {
+    delete state.manualEntries[dateKey];
+  }
+  if (['breakfast', 'lunch', 'snack', 'dinner'].includes(field) && value) {
+    rememberMeal(value);
+  }
+  save();
+}
+
+function rememberMeal(meal) {
+  const trimmed = meal.trim();
+  if (!trimmed) return;
+  const existing = state.recentMeals.findIndex(
+    m => m.toLowerCase() === trimmed.toLowerCase()
+  );
+  if (existing >= 0) state.recentMeals.splice(existing, 1);
+  state.recentMeals.unshift(trimmed);
+  if (state.recentMeals.length > 60) state.recentMeals.length = 60;
+  renderMealSuggestions();
+  save();
+}
+
+/* ============ Rendering — PC ============ */
+
+function renderPC() {
+  const tbody = document.getElementById('planner-body');
+  const rangeLabel = document.getElementById('range-label');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  rangeLabel.textContent = displayRange(state.viewStart);
+
+  let html = '';
+  for (let i = 0; i < 14; i++) {
+    const date = addDays(state.viewStart, i);
+    const dateKey = formatDate(date);
+    const weekend = isWeekend(date);
+    const today_row = isSameDay(date, today);
+    const cls = [];
+    if (weekend) cls.push('weekend');
+    if (today_row) cls.push('today');
+    const dow = date.toLocaleDateString('en-GB', { weekday: 'short' });
+    const dnum = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const m = manualFor(dateKey);
+
+    html += '<tr class="' + cls.join(' ') + '">';
+    html += '<td class="col-date"><span class="dow">' + dow + '</span>' + dnum + '</td>';
+    html += renderCalCell(dateKey, 'working');
+    html += renderCalCell(dateKey, 'activity');
+    html += renderCalCell(dateKey, 'events');
+    html += renderManualCell(dateKey, 'task', m.task);
+    html += renderManualCell(dateKey, 'breakfast', m.breakfast, true);
+    html += renderManualCell(dateKey, 'lunch', m.lunch, true);
+    html += renderManualCell(dateKey, 'snack', m.snack, true);
+    html += renderManualCell(dateKey, 'dinner', m.dinner, true);
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+function renderCalCell(dateKey, col) {
+  const items = eventsFor(dateKey, col);
+  if (items.length === 0) {
+    return '<td class="cell-cal"><span class="empty">—</span></td>';
+  }
+  let inner = '';
+  items.forEach(it => {
+    if (it.text) inner += escapeHtml(it.text);
+    if (it.text && it.sub) inner += '<br>';
+    if (it.sub) inner += '<span class="subtext">' + escapeHtml(it.sub) + '</span>';
+    inner += '<br>';
+  });
+  return '<td class="cell-cal">' + inner.replace(/<br>$/, '') + '</td>';
+}
+
+function renderManualCell(dateKey, field, value, isMeal) {
+  const val = value ? escapeAttr(value) : '';
+  const list = isMeal ? ' list="meal-suggestions"' : '';
+  return '<td class="cell-manual">' +
+    '<input type="text" value="' + val + '"' + list +
+    ' data-date="' + dateKey + '" data-field="' + field + '"' +
+    ' onchange="onManualChange(event)">' +
+    '</td>';
+}
+
+function onManualChange(e) {
+  setManual(e.target.dataset.date, e.target.dataset.field, e.target.value);
+}
+
+/* ============ Rendering — phone ============ */
+
+function renderPhone() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = addDays(today, state.phoneDayOffset);
+  const dateKey = formatDate(date);
+  const label = document.getElementById('phone-day-label');
+  label.textContent = displayLong(date);
+  label.className = 'day-label' + (isSameDay(date, today) ? ' today' : '');
+
+  const m = manualFor(dateKey);
+  const parts = [];
+
+  parts.push(sectionCal('Working at', eventsFor(dateKey, 'working')));
+  parts.push(sectionCal('Activity',    eventsFor(dateKey, 'activity')));
+  parts.push(sectionCal('Events',      eventsFor(dateKey, 'events')));
+  parts.push(sectionManual('Task', dateKey, 'task', m.task, false));
+
+  parts.push(
+    '<div class="section section-manual">' +
+    '<div class="section-label">Meals</div>' +
+    mealRow('Breakfast', dateKey, 'breakfast', m.breakfast) +
+    mealRow('Lunch',     dateKey, 'lunch',     m.lunch) +
+    mealRow('Snack',     dateKey, 'snack',     m.snack) +
+    mealRow('Dinner',    dateKey, 'dinner',    m.dinner) +
+    '</div>'
+  );
+
+  document.getElementById('phone-day-content').innerHTML = parts.join('');
+}
+
+function sectionCal(label, items) {
+  let body;
+  if (items.length === 0) {
+    body = '<div class="empty">—</div>';
+  } else {
+    body = items.map(it => {
+      let s = '';
+      if (it.text) s += '<div>' + escapeHtml(it.text) + '</div>';
+      if (it.sub) s += '<div class="subtext">' + escapeHtml(it.sub) + '</div>';
+      return s;
+    }).join('');
+  }
+  return '<div class="section"><div class="section-label">' + label + '</div>' +
+    '<div class="section-content">' + body + '</div></div>';
+}
+
+function sectionManual(label, dateKey, field, value, isMeal) {
+  const val = value ? escapeAttr(value) : '';
+  const list = isMeal ? ' list="meal-suggestions"' : '';
+  const placeholder = value ? '' : ' placeholder="—"';
+  return '<div class="section section-manual">' +
+    '<div class="section-label">' + label + '</div>' +
+    '<input type="text" value="' + val + '"' + list + placeholder +
+    ' data-date="' + dateKey + '" data-field="' + field + '"' +
+    ' onchange="onManualChange(event); renderPhone();">' +
+    '</div>';
+}
+
+function mealRow(label, dateKey, field, value) {
+  const val = value ? escapeAttr(value) : '';
+  const placeholder = value ? '' : ' placeholder="—"';
+  return '<div class="meal-row">' +
+    '<div class="meal-label">' + label + '</div>' +
+    '<input type="text" value="' + val + '" list="meal-suggestions"' + placeholder +
+    ' data-date="' + dateKey + '" data-field="' + field + '"' +
+    ' onchange="onManualChange(event); renderPhone();">' +
+    '</div>';
+}
+
+/* Fortnight tab — compact list */
+
+function renderPhoneFortnight() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = getMonday(today);
+  let html = '';
+  for (let i = 0; i < 14; i++) {
+    const date = addDays(start, i);
+    const dateKey = formatDate(date);
+    const cls = ['fortnight-day'];
+    if (isWeekend(date)) cls.push('weekend');
+    if (isSameDay(date, today)) cls.push('today');
+    const bits = [];
+    ['working', 'activity', 'events'].forEach(col => {
+      eventsFor(dateKey, col).forEach(it => {
+        if (it.text) bits.push(it.text);
+        else if (it.sub) bits.push(it.sub);
+      });
+    });
+    const m = manualFor(dateKey);
+    if (m.task) bits.push(m.task.split('\n')[0]);
+    const summary = bits.length
+      ? '<div class="fd-summary">' + escapeHtml(bits.join(' · ')) + '</div>'
+      : '<div class="fd-summary empty">—</div>';
+    html += '<div class="' + cls.join(' ') + '" onclick="jumpToDay(' + i + ')">';
+    html += '<div class="fd-date">' + displayShort(date) + '</div>' + summary;
+    html += '</div>';
+  }
+  document.getElementById('fortnight-list').innerHTML = html;
+}
+
+function jumpToDay(offsetFromWeekStart) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = getMonday(today);
+  const target = addDays(start, offsetFromWeekStart);
+  state.phoneDayOffset = Math.round((target - today) / 86400000);
+  setTab('today');
+}
+
+/* Meals tab */
+
+function renderPhoneMeals() {
+  const list = document.getElementById('meals-list');
+  if (state.recentMeals.length === 0) {
+    list.innerHTML = '<div class="meals-empty">No meals typed yet. Start entering breakfast, lunch, snack or dinner in the day view.</div>';
+    return;
+  }
+  list.innerHTML = state.recentMeals.map(m =>
+    '<span class="meal-chip">' + escapeHtml(m) + '</span>'
+  ).join('');
+}
+
+function renderMealSuggestions() {
+  const dl = document.getElementById('meal-suggestions');
+  dl.innerHTML = state.recentMeals.map(m =>
+    '<option value="' + escapeAttr(m) + '">'
+  ).join('');
+}
+
+/* ============ Navigation ============ */
+
+function navFortnight(delta) {
+  state.viewStart = addDays(state.viewStart, 14 * delta);
+  renderPC();
+}
+function goToday() {
+  state.viewStart = getMonday(new Date());
+  renderPC();
+}
+function navPhoneDay(delta) {
+  state.phoneDayOffset += delta;
+  renderPhone();
+}
+function setTab(tab) {
+  state.activeTab = tab;
+  ['today', 'fortnight', 'meals'].forEach(t => {
+    document.getElementById('phone-' + t).style.display = (t === tab) ? '' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'fortnight') renderPhoneFortnight();
+  if (tab === 'meals') renderPhoneMeals();
+  if (tab === 'today') renderPhone();
+}
+
+/* ============ Utilities ============ */
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+/* ============ Boot ============ */
+
+load();
+state.viewStart = getMonday(new Date());
+renderMealSuggestions();
+renderPC();
+renderPhone();
+
+/* Re-render if crossing midnight while the page stays open — quick check */
+setInterval(() => {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(0, 0, 0, 0);
+  if (!state.lastMidnight || state.lastMidnight.getTime() !== midnight.getTime()) {
+    state.lastMidnight = midnight;
+  }
+}, 60000);
+</script>
+
+</body>
+</html>
