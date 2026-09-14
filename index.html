@@ -19,6 +19,10 @@
   --rule-strong: #B8B0A0;
   --accent: #294564;
   --accent-hover: #1B3049;
+  --status-green: #4A7A5C;
+  --status-amber: #9B7A2A;
+  --status-grey: #8B857B;
+  --status-red: #8B4A3B;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-serif: "Palatino Linotype", Palatino, "Book Antiqua", "URW Palladio L", Georgia, serif;
 }
@@ -71,6 +75,32 @@ input[type="text"]:focus {
   outline-offset: 1px;
 }
 
+/* ======================== SYNC STATUS ======================== */
+
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #F3EFE4;
+  white-space: nowrap;
+}
+.sync-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-grey);
+  flex-shrink: 0;
+}
+.sync-status.synced .dot { background: var(--status-green); }
+.sync-status.saving .dot { background: var(--status-amber); animation: pulse 1.2s infinite ease-in-out; }
+.sync-status.offline .dot { background: var(--status-grey); }
+.sync-status.nokey .dot { background: var(--status-red); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
 /* ======================== PC VIEW ======================== */
 
 #pc-view { display: block; }
@@ -113,6 +143,8 @@ input[type="text"]:focus {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .range-label {
   font-size: 13px;
@@ -178,19 +210,14 @@ input[type="text"]:focus {
   font-size: 12px;
   margin-top: 2px;
 }
-.cell-cal .empty {
-  color: var(--ink-faint);
-}
+.cell-cal .empty { color: var(--ink-faint); }
 .cell-manual {
   background: var(--paper-editable);
   min-height: 42px;
   padding: 6px 10px;
 }
 tr.weekend .cell-manual { background: #F5F1E4; }
-
-.planner-table td.cell-manual input {
-  min-height: 30px;
-}
+.planner-table td.cell-manual input { min-height: 30px; }
 
 .pc-footnote {
   margin-top: 20px;
@@ -218,8 +245,9 @@ tr.weekend .cell-manual { background: #F5F1E4; }
 }
 
 .phone-header {
-  padding: 20px 20px 12px;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid var(--rule);
+  position: relative;
 }
 .phone-quote {
   font-family: var(--font-serif);
@@ -228,6 +256,17 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   color: var(--ink-muted);
   line-height: 1.35;
   text-align: center;
+  padding: 0 40px;
+}
+.phone-header .sync-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 11px;
+  padding: 2px 6px;
+}
+.phone-header .sync-status .status-label {
+  display: none;
 }
 
 .phone-day-nav {
@@ -237,13 +276,8 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   padding: 14px 20px;
   border-bottom: 1px solid var(--rule);
 }
-.phone-day-nav .day-label {
-  font-size: 17px;
-  font-weight: 500;
-}
-.phone-day-nav .day-label.today {
-  color: var(--accent);
-}
+.phone-day-nav .day-label { font-size: 17px; font-weight: 500; }
+.phone-day-nav .day-label.today { color: var(--accent); }
 .phone-day-nav button.arrow-btn {
   border: none;
   background: transparent;
@@ -259,9 +293,7 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   padding-bottom: 90px;
 }
 
-.section {
-  margin-bottom: 20px;
-}
+.section { margin-bottom: 20px; }
 .section-label {
   font-size: 11px;
   color: var(--ink-muted);
@@ -269,27 +301,16 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   margin-bottom: 5px;
   text-transform: uppercase;
 }
-.section-content {
-  font-size: 15px;
-}
-.section-content .subtext {
-  color: var(--ink-muted);
-  font-size: 14px;
-}
-.section-content .empty {
-  color: var(--ink-faint);
-  font-size: 14px;
-}
+.section-content { font-size: 15px; }
+.section-content .subtext { color: var(--ink-muted); font-size: 14px; }
+.section-content .empty { color: var(--ink-faint); font-size: 14px; }
 .section-manual input {
   font-size: 15px;
   min-height: 26px;
   padding: 4px 0;
   border-bottom: 1px solid var(--rule);
 }
-.section-manual input:focus {
-  border-bottom-color: var(--accent);
-  outline: none;
-}
+.section-manual input:focus { border-bottom-color: var(--accent); outline: none; }
 .meal-row {
   display: flex;
   align-items: center;
@@ -298,17 +319,11 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   border-bottom: 1px solid var(--rule);
 }
 .meal-row:last-child { border-bottom: none; }
-.meal-row .meal-label {
-  width: 70px;
-  color: var(--ink-muted);
-  font-size: 13px;
-}
+.meal-row .meal-label { width: 70px; color: var(--ink-muted); font-size: 13px; }
 .meal-row input { flex: 1; }
 
 /* Fortnight tab (phone) */
-.fortnight-list {
-  padding: 8px 0;
-}
+.fortnight-list { padding: 8px 0; padding-bottom: 90px; }
 .fortnight-day {
   padding: 12px 20px;
   border-bottom: 1px solid var(--rule);
@@ -317,33 +332,15 @@ tr.weekend .cell-manual { background: #F5F1E4; }
 .fortnight-day:hover { background: var(--paper-editable); }
 .fortnight-day.today { border-left: 3px solid var(--accent); padding-left: 17px; }
 .fortnight-day.weekend { background: var(--paper-weekend); }
-.fortnight-day .fd-date {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 3px;
-}
+.fortnight-day .fd-date { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
 .fortnight-day.today .fd-date { color: var(--accent); }
-.fortnight-day .fd-summary {
-  font-size: 13px;
-  color: var(--ink-muted);
-  line-height: 1.4;
-}
+.fortnight-day .fd-summary { font-size: 13px; color: var(--ink-muted); line-height: 1.4; }
 .fortnight-day .fd-summary.empty { color: var(--ink-faint); }
 
 /* Meals tab (phone) */
-.meals-tab {
-  padding: 20px;
-}
-.meals-tab h2 {
-  font-size: 15px;
-  font-weight: 500;
-  margin: 0 0 4px;
-}
-.meals-tab .meals-hint {
-  font-size: 13px;
-  color: var(--ink-muted);
-  margin-bottom: 20px;
-}
+.meals-tab { padding: 20px; padding-bottom: 90px; }
+.meals-tab h2 { font-size: 15px; font-weight: 500; margin: 0 0 4px; }
+.meals-tab .meals-hint { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
 .meal-chip {
   display: inline-block;
   padding: 6px 12px;
@@ -384,19 +381,25 @@ tr.weekend .cell-manual { background: #F5F1E4; }
 .phone-tabs button.active { color: var(--accent); }
 .phone-tabs button:hover { background: transparent; color: var(--ink); }
 .phone-tabs button.active:hover { color: var(--accent); }
-.phone-tabs .tab-icon {
-  display: block;
-  font-size: 18px;
-  margin-bottom: 3px;
-  line-height: 1;
+.phone-tabs .tab-icon { display: block; font-size: 18px; margin-bottom: 3px; line-height: 1; }
+
+/* No-key overlay */
+.nokey-notice {
+  background: #F7ECE4;
+  border-bottom: 1px solid #E0C9B5;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: #6B4227;
+  text-align: center;
 }
+.nokey-notice code { background: rgba(0,0,0,0.06); padding: 1px 4px; border-radius: 2px; }
 
 /* ======================== PRINT ======================== */
 
 @media print {
   @page { size: A4 landscape; margin: 12mm; }
   body { background: white; font-size: 10px; }
-  #phone-view, .pc-controls, .pc-footnote { display: none !important; }
+  #phone-view, .pc-controls, .pc-footnote, .nokey-notice, .sync-status { display: none !important; }
   #pc-view { display: block !important; }
   .pc-container { padding: 0; max-width: 100%; }
   .pc-header { margin-bottom: 12px; padding-bottom: 8px; }
@@ -408,22 +411,14 @@ tr.weekend .cell-manual { background: #F5F1E4; }
   .cell-manual { border: 1px solid #ccc; }
   input[type="text"] { color: black; }
 }
-
-/* Stage banner - Stage A only */
-.stage-banner {
-  background: #FDF2D8;
-  border-bottom: 1px solid #E6D69E;
-  padding: 8px 20px;
-  font-size: 12px;
-  color: #6E5810;
-  text-align: center;
-}
-@media print { .stage-banner { display: none !important; } }
 </style>
 </head>
 <body>
 
-<div class="stage-banner">Stage A — layout preview with dummy calendar data. Manual entries save to this browser only.</div>
+<div id="nokey-notice" class="nokey-notice" style="display:none">
+  No family key in the URL — changes won't sync between devices.
+  Add <code>#key=YOURKEY</code> to the URL to enable sync.
+</div>
 
 <!-- ======================== PC VIEW ======================== -->
 <div id="pc-view">
@@ -435,6 +430,9 @@ tr.weekend .cell-manual { background: #F5F1E4; }
         <span class="attribution">— Winston Churchill</span>
       </div>
       <div class="pc-controls">
+        <span class="sync-status" id="sync-status-pc">
+          <span class="dot"></span><span class="status-label">Connecting…</span>
+        </span>
         <span class="range-label" id="range-label">—</span>
         <button class="arrow-btn" onclick="navFortnight(-1)" title="Previous fortnight">‹</button>
         <button class="arrow-btn" onclick="navFortnight(1)" title="Next fortnight">›</button>
@@ -461,8 +459,8 @@ tr.weekend .cell-manual { background: #F5F1E4; }
     </table>
 
     <div class="pc-footnote">
-      <div>Left three columns — from calendars (dummy data in Stage A)</div>
-      <div><span class="swatch"></span>Right five columns — click to type</div>
+      <div>Left three columns — from calendars (dummy data until Stage B wires in the real feeds)</div>
+      <div><span class="swatch"></span>Right five columns — click to type, syncs across devices</div>
     </div>
   </div>
 </div>
@@ -471,12 +469,14 @@ tr.weekend .cell-manual { background: #F5F1E4; }
 <div id="phone-view">
 
   <div class="phone-header">
+    <span class="sync-status" id="sync-status-phone">
+      <span class="dot"></span>
+    </span>
     <div class="phone-quote">
       Plans are of little importance, but planning is essential.
     </div>
   </div>
 
-  <!-- Today tab -->
   <div id="phone-today" class="phone-tab-content">
     <div class="phone-day-nav">
       <button class="arrow-btn" onclick="navPhoneDay(-1)" title="Previous day">‹</button>
@@ -486,12 +486,10 @@ tr.weekend .cell-manual { background: #F5F1E4; }
     <div class="phone-day-content" id="phone-day-content"></div>
   </div>
 
-  <!-- Fortnight tab -->
   <div id="phone-fortnight" class="phone-tab-content" style="display:none">
     <div class="fortnight-list" id="fortnight-list"></div>
   </div>
 
-  <!-- Meals tab -->
   <div id="phone-meals" class="phone-tab-content" style="display:none">
     <div class="meals-tab">
       <h2>Recent meals</h2>
@@ -517,18 +515,34 @@ tr.weekend .cell-manual { background: #F5F1E4; }
 <datalist id="meal-suggestions"></datalist>
 
 <script>
+/* ============ Config ============ */
+
+const WORKER_URL = 'https://lornas-planner-api.richpschofield.workers.dev';
+const POLL_INTERVAL_MS = 20000;   // check for other-device changes every 20s
+const SAVE_DEBOUNCE_MS = 800;     // wait this long after last keystroke before syncing
+
+/* Family key comes from the URL hash: index.html#key=xxxx
+   Hash isn't sent to the server, so key stays with the client. */
+function getFamilyKey() {
+  const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+  const params = new URLSearchParams(hash);
+  const key = params.get('key');
+  if (!key || key.length < 8 || !/^[A-Za-z0-9_-]+$/.test(key)) return null;
+  return key;
+}
+const FAMILY_KEY = getFamilyKey();
+
 /* ============ Data model ============ */
 
 const state = {
-  viewStart: null,     // Monday of the fortnight currently shown on PC
-  phoneDayOffset: 0,   // offset from today
+  viewStart: null,
+  phoneDayOffset: 0,
   activeTab: 'today',
-  manualEntries: {},   // { '2026-09-13': { task, breakfast, lunch, snack, dinner } }
+  manualEntries: {},
   recentMeals: [],
+  syncStatus: 'connecting',   // connecting | synced | saving | offline | nokey
 };
 
-/* Seed dummy calendar events — anchored to the current week so first-open
-   always looks populated. Real feeds replace this in Stage B. */
 function seedCalendar() {
   const monday = getMonday(new Date());
   const d = (n) => formatDate(addDays(monday, n));
@@ -551,10 +565,8 @@ function seedCalendar() {
     { date: d(10), col: 'activity', text: '18:00 Rowing', sub: '' },
   ];
 }
-
 const calendarEvents = seedCalendar();
 
-/* Seed some recent meals so the dropdown isn't empty on first open */
 const seedMeals = [
   'Porridge & berries', 'Toast & jam', 'Greek yoghurt & granola',
   'Scrambled eggs', 'Smoothie', 'Overnight oats',
@@ -567,8 +579,7 @@ const seedMeals = [
 
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 function getMonday(d) {
-  const r = new Date(d);
-  r.setHours(0, 0, 0, 0);
+  const r = new Date(d); r.setHours(0, 0, 0, 0);
   const day = r.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   return addDays(r, diff);
@@ -579,12 +590,8 @@ function formatDate(d) {
   const dd = String(d.getDate()).padStart(2, '0');
   return y + '-' + m + '-' + dd;
 }
-function displayShort(d) {
-  return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-function displayLong(d) {
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-}
+function displayShort(d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
+function displayLong(d)  { return d.toLocaleDateString('en-GB', { weekday: 'long',  day: 'numeric', month: 'long'  }); }
 function displayRange(start) {
   const end = addDays(start, 13);
   const s = start.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -594,20 +601,21 @@ function displayRange(start) {
 function isSameDay(a, b) { return formatDate(a) === formatDate(b); }
 function isWeekend(d) { const day = d.getDay(); return day === 0 || day === 6; }
 
-/* ============ Persistence ============ */
+/* ============ Local cache (localStorage) ============
+   Used as an offline cache: instant paint on load, and a safety net if the
+   Worker is unreachable. The Worker is the source of truth. */
 
-const STORAGE_KEY = 'lornas-planner-v1';
+const STORAGE_KEY = 'lornas-planner-v2:' + (FAMILY_KEY || 'nokey');
 
-function save() {
+function saveLocal() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       manualEntries: state.manualEntries,
       recentMeals: state.recentMeals,
     }));
-  } catch (e) { /* quota or private mode — silent for Stage A */ }
+  } catch (e) { /* quota / private mode — silent */ }
 }
-
-function load() {
+function loadLocal() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -615,21 +623,150 @@ function load() {
       state.manualEntries = data.manualEntries || {};
       state.recentMeals = data.recentMeals || [];
     }
-  } catch (e) { /* corrupt storage — reset silently */ }
-  if (state.recentMeals.length === 0) {
-    state.recentMeals = seedMeals.slice();
+  } catch (e) { /* corrupt — silent */ }
+}
+
+/* ============ Sync (Cloudflare Worker + KV) ============ */
+
+let syncTimer = null;         // debounce timer for pushing changes
+let syncInFlight = false;     // avoid overlapping requests
+let lastSentJson = null;      // avoid pushing identical payloads
+let pendingWhileInFlight = false;
+
+function stateJson() {
+  return JSON.stringify({
+    manualEntries: state.manualEntries,
+    recentMeals: state.recentMeals,
+  });
+}
+
+function setStatus(status) {
+  state.syncStatus = status;
+  const labelMap = {
+    connecting: 'Connecting…',
+    synced:     'Synced',
+    saving:     'Saving…',
+    offline:    'Offline',
+    nokey:      'Not syncing',
+  };
+  ['pc', 'phone'].forEach(where => {
+    const el = document.getElementById('sync-status-' + where);
+    if (!el) return;
+    el.className = 'sync-status ' + status;
+    const label = el.querySelector('.status-label');
+    if (label) label.textContent = labelMap[status] || status;
+    el.title = labelMap[status] || status;
+  });
+}
+
+async function pullFromServer() {
+  if (!FAMILY_KEY) return;
+  try {
+    const res = await fetch(WORKER_URL + '/?key=' + encodeURIComponent(FAMILY_KEY), {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && (data.manualEntries || data.recentMeals)) {
+      applyServerData(data);
+    }
+    if (state.syncStatus !== 'saving') setStatus('synced');
+  } catch (e) {
+    if (state.syncStatus !== 'saving') setStatus('offline');
   }
 }
 
-/* ============ Calendar helpers ============ */
+function applyServerData(data) {
+  const incoming = JSON.stringify({
+    manualEntries: data.manualEntries || {},
+    recentMeals: data.recentMeals || [],
+  });
+  if (incoming === stateJson()) return; // nothing to apply
 
-function eventsFor(dateKey, col) {
-  return calendarEvents.filter(e => e.date === dateKey && e.col === col);
+  /* Preserve focused input across re-render */
+  const focused = document.activeElement;
+  const focusInfo = (focused && focused.tagName === 'INPUT' && focused.dataset && focused.dataset.date)
+    ? {
+        date: focused.dataset.date,
+        field: focused.dataset.field,
+        selStart: focused.selectionStart,
+        selEnd: focused.selectionEnd,
+        value: focused.value,
+      }
+    : null;
+
+  /* If the user is currently typing in a field, preserve their unsaved edit
+     by merging it in on top of the server's version — their next keystroke
+     will push it back. Prevents losing an in-progress word to a poll. */
+  const merged = {
+    manualEntries: data.manualEntries || {},
+    recentMeals: data.recentMeals || [],
+  };
+  if (focusInfo) {
+    if (!merged.manualEntries[focusInfo.date]) merged.manualEntries[focusInfo.date] = {};
+    merged.manualEntries[focusInfo.date][focusInfo.field] = focusInfo.value;
+  }
+
+  state.manualEntries = merged.manualEntries;
+  state.recentMeals = merged.recentMeals;
+  saveLocal();
+  lastSentJson = stateJson();
+
+  renderMealSuggestions();
+  renderPC();
+  if (state.activeTab === 'today') renderPhone();
+  if (state.activeTab === 'fortnight') renderPhoneFortnight();
+  if (state.activeTab === 'meals') renderPhoneMeals();
+
+  if (focusInfo) {
+    const sel = 'input[data-date="' + focusInfo.date + '"][data-field="' + focusInfo.field + '"]';
+    const restored = document.querySelector(sel);
+    if (restored) {
+      restored.focus();
+      try { restored.setSelectionRange(focusInfo.selStart, focusInfo.selEnd); } catch (e) { /* ignore */ }
+    }
+  }
 }
 
-function manualFor(dateKey) {
-  return state.manualEntries[dateKey] || {};
+async function pushToServer() {
+  if (!FAMILY_KEY) return;
+  if (syncInFlight) { pendingWhileInFlight = true; return; }
+
+  const body = stateJson();
+  if (body === lastSentJson) { setStatus('synced'); return; }
+
+  syncInFlight = true;
+  setStatus('saving');
+  try {
+    const res = await fetch(WORKER_URL + '/?key=' + encodeURIComponent(FAMILY_KEY), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    lastSentJson = body;
+    setStatus('synced');
+  } catch (e) {
+    setStatus('offline');
+  } finally {
+    syncInFlight = false;
+    if (pendingWhileInFlight) {
+      pendingWhileInFlight = false;
+      /* If more changes queued during flight, schedule another push */
+      scheduleSync();
+    }
+  }
 }
+
+function scheduleSync() {
+  if (!FAMILY_KEY) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToServer, SAVE_DEBOUNCE_MS);
+}
+
+/* ============ Manual entry helpers ============ */
+
+function manualFor(dateKey) { return state.manualEntries[dateKey] || {}; }
 
 function setManual(dateKey, field, value) {
   if (!state.manualEntries[dateKey]) state.manualEntries[dateKey] = {};
@@ -641,20 +778,22 @@ function setManual(dateKey, field, value) {
   if (['breakfast', 'lunch', 'snack', 'dinner'].includes(field) && value) {
     rememberMeal(value);
   }
-  save();
+  saveLocal();
+  scheduleSync();
 }
 
 function rememberMeal(meal) {
   const trimmed = meal.trim();
   if (!trimmed) return;
-  const existing = state.recentMeals.findIndex(
-    m => m.toLowerCase() === trimmed.toLowerCase()
-  );
+  const existing = state.recentMeals.findIndex(m => m.toLowerCase() === trimmed.toLowerCase());
   if (existing >= 0) state.recentMeals.splice(existing, 1);
   state.recentMeals.unshift(trimmed);
   if (state.recentMeals.length > 60) state.recentMeals.length = 60;
   renderMealSuggestions();
-  save();
+}
+
+function eventsFor(dateKey, col) {
+  return calendarEvents.filter(e => e.date === dateKey && e.col === col);
 }
 
 /* ============ Rendering — PC ============ */
@@ -662,8 +801,7 @@ function rememberMeal(meal) {
 function renderPC() {
   const tbody = document.getElementById('planner-body');
   const rangeLabel = document.getElementById('range-label');
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
 
   rangeLabel.textContent = displayRange(state.viewStart);
 
@@ -697,9 +835,7 @@ function renderPC() {
 
 function renderCalCell(dateKey, col) {
   const items = eventsFor(dateKey, col);
-  if (items.length === 0) {
-    return '<td class="cell-cal"><span class="empty">—</span></td>';
-  }
+  if (items.length === 0) return '<td class="cell-cal"><span class="empty">—</span></td>';
   let inner = '';
   items.forEach(it => {
     if (it.text) inner += escapeHtml(it.text);
@@ -716,19 +852,23 @@ function renderManualCell(dateKey, field, value, isMeal) {
   return '<td class="cell-manual">' +
     '<input type="text" value="' + val + '"' + list +
     ' data-date="' + dateKey + '" data-field="' + field + '"' +
-    ' onchange="onManualChange(event)">' +
+    ' oninput="onManualInput(event)" onchange="onManualChange(event)">' +
     '</td>';
 }
 
 function onManualChange(e) {
   setManual(e.target.dataset.date, e.target.dataset.field, e.target.value);
 }
+/* Also sync on input (each keystroke) so cross-device updates feel live —
+   the debounce prevents this from hammering the Worker. */
+function onManualInput(e) {
+  setManual(e.target.dataset.date, e.target.dataset.field, e.target.value);
+}
 
 /* ============ Rendering — phone ============ */
 
 function renderPhone() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const date = addDays(today, state.phoneDayOffset);
   const dateKey = formatDate(date);
   const label = document.getElementById('phone-day-label');
@@ -780,7 +920,7 @@ function sectionManual(label, dateKey, field, value, isMeal) {
     '<div class="section-label">' + label + '</div>' +
     '<input type="text" value="' + val + '"' + list + placeholder +
     ' data-date="' + dateKey + '" data-field="' + field + '"' +
-    ' onchange="onManualChange(event); renderPhone();">' +
+    ' oninput="onManualInput(event)" onchange="onManualChange(event)">' +
     '</div>';
 }
 
@@ -791,15 +931,12 @@ function mealRow(label, dateKey, field, value) {
     '<div class="meal-label">' + label + '</div>' +
     '<input type="text" value="' + val + '" list="meal-suggestions"' + placeholder +
     ' data-date="' + dateKey + '" data-field="' + field + '"' +
-    ' onchange="onManualChange(event); renderPhone();">' +
+    ' oninput="onManualInput(event)" onchange="onManualChange(event)">' +
     '</div>';
 }
 
-/* Fortnight tab — compact list */
-
 function renderPhoneFortnight() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const start = getMonday(today);
   let html = '';
   for (let i = 0; i < 14; i++) {
@@ -828,15 +965,12 @@ function renderPhoneFortnight() {
 }
 
 function jumpToDay(offsetFromWeekStart) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   const start = getMonday(today);
   const target = addDays(start, offsetFromWeekStart);
   state.phoneDayOffset = Math.round((target - today) / 86400000);
   setTab('today');
 }
-
-/* Meals tab */
 
 function renderPhoneMeals() {
   const list = document.getElementById('meals-list');
@@ -858,18 +992,9 @@ function renderMealSuggestions() {
 
 /* ============ Navigation ============ */
 
-function navFortnight(delta) {
-  state.viewStart = addDays(state.viewStart, 14 * delta);
-  renderPC();
-}
-function goToday() {
-  state.viewStart = getMonday(new Date());
-  renderPC();
-}
-function navPhoneDay(delta) {
-  state.phoneDayOffset += delta;
-  renderPhone();
-}
+function navFortnight(delta) { state.viewStart = addDays(state.viewStart, 14 * delta); renderPC(); }
+function goToday() { state.viewStart = getMonday(new Date()); renderPC(); }
+function navPhoneDay(delta) { state.phoneDayOffset += delta; renderPhone(); }
 function setTab(tab) {
   state.activeTab = tab;
   ['today', 'fortnight', 'meals'].forEach(t => {
@@ -892,21 +1017,41 @@ function escapeAttr(s) { return escapeHtml(s); }
 
 /* ============ Boot ============ */
 
-load();
+/* 1. Load cache immediately for instant paint */
+loadLocal();
+if (state.recentMeals.length === 0) state.recentMeals = seedMeals.slice();
 state.viewStart = getMonday(new Date());
 renderMealSuggestions();
 renderPC();
 renderPhone();
 
-/* Re-render if crossing midnight while the page stays open — quick check */
-setInterval(() => {
-  const now = new Date();
-  const midnight = new Date(now);
-  midnight.setHours(0, 0, 0, 0);
-  if (!state.lastMidnight || state.lastMidnight.getTime() !== midnight.getTime()) {
-    state.lastMidnight = midnight;
-  }
-}, 60000);
+/* 2. Show sync status. If no key, note it and skip sync. */
+if (!FAMILY_KEY) {
+  document.getElementById('nokey-notice').style.display = '';
+  setStatus('nokey');
+} else {
+  setStatus('connecting');
+  /* 3. Pull latest from server, then start polling */
+  pullFromServer();
+  setInterval(pullFromServer, POLL_INTERVAL_MS);
+  /* Also pull when the tab regains focus — catches other-device edits fast */
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pullFromServer();
+  });
+  /* Push any queued changes when the tab is about to close */
+  window.addEventListener('beforeunload', () => {
+    if (syncTimer) {
+      clearTimeout(syncTimer);
+      /* Best-effort synchronous send via sendBeacon */
+      try {
+        navigator.sendBeacon(
+          WORKER_URL + '/?key=' + encodeURIComponent(FAMILY_KEY),
+          stateJson()
+        );
+      } catch (e) { /* ignore */ }
+    }
+  });
+}
 </script>
 
 </body>
