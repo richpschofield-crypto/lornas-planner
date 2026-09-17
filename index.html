@@ -440,23 +440,12 @@ tr.weekend .cell-manual { background: #F5F1E4; }
     <div class="fortnight-list" id="fortnight-list"></div>
   </div>
 
-  <div id="phone-meals" class="phone-tab-content" style="display:none">
-    <div class="meals-tab">
-      <h2>Recent meals</h2>
-      <div class="meals-hint">Meals you've typed before, ready to reuse.</div>
-      <div id="meals-list"></div>
-    </div>
-  </div>
-
   <nav class="phone-tabs">
     <button id="tab-today" class="active" onclick="setTab('today')">
       <span class="tab-icon">◐</span>Today
     </button>
     <button id="tab-fortnight" onclick="setTab('fortnight')">
       <span class="tab-icon">▦</span>Fortnight
-    </button>
-    <button id="tab-meals" onclick="setTab('meals')">
-      <span class="tab-icon">≡</span>Meals
     </button>
   </nav>
 </div>
@@ -762,9 +751,8 @@ function renderCalCell(dateKey, col) {
 }
 function renderManualCell(dateKey, field, value, isMeal) {
   const val = value ? escapeAttr(value) : '';
-  const list = isMeal ? ' list="meal-suggestions"' : '';
   return '<td class="cell-manual">' +
-    '<input type="text" value="' + val + '"' + list +
+    '<input type="text" value="' + val + '"' +
     ' data-date="' + dateKey + '" data-field="' + field + '"' +
     ' oninput="onManualInput(event)" onchange="onManualChange(event)">' +
     '</td>';
@@ -826,7 +814,7 @@ function mealRow(label, dateKey, field, value) {
   const placeholder = value ? '' : ' placeholder="—"';
   return '<div class="meal-row">' +
     '<div class="meal-label">' + label + '</div>' +
-    '<input type="text" value="' + val + '" list="meal-suggestions"' + placeholder +
+    '<input type="text" value="' + val + '"' + placeholder +
     ' data-date="' + dateKey + '" data-field="' + field + '"' +
     ' oninput="onManualInput(event)" onchange="onManualChange(event)">' +
     '</div>';
@@ -886,12 +874,11 @@ function goToday() { state.viewStart = getMonday(new Date()); renderPC(); }
 function navPhoneDay(delta) { state.phoneDayOffset += delta; renderPhone(); }
 function setTab(tab) {
   state.activeTab = tab;
-  ['today', 'fortnight', 'meals'].forEach(t => {
+  ['today', 'fortnight'].forEach(t => {
     document.getElementById('phone-' + t).style.display = (t === tab) ? '' : 'none';
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
   });
   if (tab === 'fortnight') renderPhoneFortnight();
-  if (tab === 'meals') renderPhoneMeals();
   if (tab === 'today') renderPhone();
 }
 
